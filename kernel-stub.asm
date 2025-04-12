@@ -552,6 +552,7 @@ main_with_console:
 	call		print
 
 	call heap_init
+	call divide_ram
 
 	## Call run_programs() to invoke each program ROM in turn.
 	call		run_programs

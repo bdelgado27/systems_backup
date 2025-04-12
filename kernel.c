@@ -3,6 +3,8 @@
 
 #include "kernel-stub.h"
 #include "types.h"
+#include "linked_list.h"
+#include "heapalloc.h"
 /* =============================================================================================================================== */
 
 
@@ -67,37 +69,54 @@ void run_programs () {
   
 } /* run_programs () */
 /* =============================================================================================================================== */
-// typedef struct int_link {
-//   struct int_link* next;
-//   struct int_link* prev;
-//   int              addr;
-// } int_link;
-// int_link* head = NULL;
-// void divide_ram(){
+typedef struct int_link {
+  struct int_link* next;
+  struct int_link* prev;
+  int              addr;
+} int_link;
+int_link* tail = NULL;
+int_link* head = NULL;
 
-//   int ram_size = 1024 * 128;
-//   int block_size = 32 * 1024;
-//   int num_blocks = ram_size/block_size;
+void divide_ram(){
+  int ram_size = 1024 * 128;
+  int block_size = 32 * 1024;
+  int num_blocks = ram_size/block_size;
   
-//   for(int i = 1; i<num_blocks; i++){
-//     int_link* block = malloc(sizeof(int_link));
-//     if (block == NULL) {
-//       return;
-//     }
-//     block->addr = (i)*block_size;
-//     INSERT(head, block);
-//   }
-// int x = 0;
-// if(head != NULL){
-//  x = head->addr;
-// }
+  for(int i = 2; i<num_blocks; i++){
+    int_link* block = allocate(sizeof(int_link));
+    if (block == NULL) {
+      return;
+    }
+    block->addr = i*block_size;
+    if(i == 2){
+      head = block;
+      // char strh[32];
+      // int_to_hex(head->addr, strh);
+      // print(strh);
+      // print("\n");
+    }
+    //  char strx[32];
+    //  int_to_hex(block->addr, strx);
+    //  print(strx);
+    //  print("\n");
 
-//  // char strx[4];
-//  // int_to_hex(x, strx);
-//  // print(strx);
+    INSERT(tail, block);
+  }
+//   int y = head->addr;
+//    int x = head->prev->addr;
 
-//   return;
-// }
+//  char strx[32];
+//  int_to_hex(x, strx);
+//  print(strx);
+
+//  print("\n");
+
+//  char stry[32];
+//  int_to_hex(y, stry);
+//  print(stry);
+//  print("\n");
+  return;
+}
 void run_new_program(word_t next_program_ROM){
 
   // if(program_count <1){
@@ -119,16 +138,19 @@ void run_new_program(word_t next_program_ROM){
 
   print("Running program...\n");
 
-  int limit = 0x10000 + 0x3000;
-  // if(head == NULL){
-  //   //wrong
-  //   return;
-  // }  
-  // else{
-  //   //modify
-  //   limit = head->addr;
-  //   REMOVE(head->next, head);
-  // }
+  int limit = 0;
+  if(head == NULL){
+    //wrong
+    return;
+  }  
+  else{
+    //modify
+    limit = head->addr + 0x3000;
+    int_link* temp = head->prev;
+    REMOVE(head->prev, head);
+    deallocate(head);
+    head = temp;
+  }
 
   /* Copy the program into the free RAM space after the kernel. */
   DMA_portal_ptr->src    = dt_ROM_ptr->base;
