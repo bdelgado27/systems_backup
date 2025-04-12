@@ -26,8 +26,7 @@ exit:
 	##     a0:  0 = success, 1 = invalid ROM number, 2 = insufficient RAM, 3 = other error
 run:
 	mv	a1,	a0			# Move the ROM number into a1 (arg[1])
-	lw	a0,	SYSCALL_RUN_CODE	# Load the run syscall code into a0 (arg[0])
-ebreak	
+	lw	a0,	SYSCALL_RUN_CODE	# Load the run syscall code into a0 (arg[0])	
 ecall
 	ret					# The return value of the syscall is the return value of this wrapper function.
 

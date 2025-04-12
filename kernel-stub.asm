@@ -334,7 +334,7 @@ do_exit:
 	call		print
 
 	## Try to load the next ROM.
-	call		run_programs
+	# call exit_process
 
 	## Epilogue: If we are here, no program ran, so restore and return.
 	lw		ra,		4(sp)						# Restore ra
@@ -361,7 +361,6 @@ ebreak
 	lw		t2,		syscall_PRINT
 
 
-ebreak
 
 	beq		a0,		t0,		handle_exit			# Is it an EXIT request?
 	beq		a0,		t1,		handle_run
@@ -480,6 +479,12 @@ alarm_setup:
 	# return to caller
 	ret
 
+alarm_off:
+	csrr		t1,		md
+	addi		t0,		t1,		-16
+	csrw		md,		t0
+	ret
+
 	
 ### ================================================================================================================================
 ### Procedure: init_trap_table
@@ -532,7 +537,6 @@ userspace_jump:
 	eret
 ### ================================================================================================================================
 processspace_jump:
-ebreak
 	lw		sp,		RAM_limit
 	lw		fp,		RAM_limit
 
