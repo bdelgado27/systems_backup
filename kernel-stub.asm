@@ -394,8 +394,9 @@ handle_print:
 #	addi t0, t0, 1
 #	csrw epc, t0
 #	eret
-	add a0, zero, zero
-	call handle_exit
+	# add a0, zero, zero
+	# call handle_exit
+	j               syscall_handler_halt
 
 handle_exit:
 	# debug message
