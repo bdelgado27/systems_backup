@@ -1,14 +1,11 @@
 #include "syscall-wrappers.h"
 
 int main() {
-	//print("hi\n");
-	run(5);
-	int x = 0;
+	int x = 100;
 	for(int i = 0; i <100; i++){
-		x ++;
-
+		x --;
 	}
-	// print("hi\n");
+	print("hi\n");
 	return 0;	
 
 }

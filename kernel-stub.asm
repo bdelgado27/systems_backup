@@ -446,6 +446,39 @@ default_handler:
 	halt
 ### ================================================================================================================================
 
+## alarm interrupt 
+alarm_interrupt_handler:
+	lw fp, kernel_limit
+	lw sp, kernel_limit
+	la a0, alarm_handler_msg
+	call print 
+	csrr		a0,		epc
+	call		alarm_int
+	# alarm = current cycle + quanta
+#	la		t2,		alarm_quanta
+#	csrr		t4,		ck
+#	add		t3,		t4,		t2
+#	csrw		al,		t3
+		
+
+alarm_setup:
+
+	# enable alarm mode- alarm is bit 4, so increment by 2^4
+	csrr		t1,		md
+	addi 		t0,		t1,		16
+	csrw		md,		t0
+
+	# setting alarm to an arbitrary value here..
+	lw		a0,		alarm_quanta
+	csrr		t2,		al
+	# reading current val of ck
+	csrr		t4,		ck
+	# alarm = current cycle + quanta
+	add		t3,		t4,		a0
+	csrw		al,		t3
+
+	# return to caller
+	ret
 
 	
 ### ================================================================================================================================
@@ -470,7 +503,8 @@ init_trap_table:
 	sw		t0,		0x00(a0)				# tt[INVALID_ADDRESS]      = default_handler()
 	sw		t0,		0x04(a0)				# tt[INVALID_REGISTER]     = default_handler()
 	sw		t0,		0x08(a0)				# tt[BUS_ERROR]            = default_handler()
-	sw		t0,		0x0c(a0)				# tt[CLOCK_ALARM]          = default_handler()
+	la 		t2,     alarm_interrupt_handler
+	sw		t2,		0x0c(a0)				# tt[CLOCK_ALARM]          = alarm_interrupt_handler()
 	sw		t0,		0x10(a0)				# tt[DIVIDE_BY_ZERO]       = default_handler()
 	sw		t0,		0x14(a0)				# tt[OVERFLOW]             = default_handler()
 	sw		t0,		0x18(a0)				# tt[INVALID_INSTRUCTION]  = default_handler()
@@ -497,8 +531,30 @@ userspace_jump:
 	csrw		epc,		a0
 	eret
 ### ================================================================================================================================
-	
+processspace_jump:
+ebreak
+	lw		sp,		RAM_limit
+	lw		fp,		RAM_limit
 
+#alarm stuff
+	la		t2,		alarm_quanta
+	csrr		t4,		ck
+   add		t3,		t4,		t2
+	csrw		al,		t3
+
+# jump that doesnt work
+	#csrw		epc,		a0
+	#eret
+j syscall_handler_halt
+
+
+#getters
+get_sp:
+	add		a0,		sp,		zero
+	ret
+get_fp:
+	add 		a0, 		zero, 		s0
+	ret
 	
 ### ================================================================================================================================
 ### Procedure: main
@@ -574,6 +630,9 @@ main_with_console:
 	## A special marker that indicates the beginning of the statics.  The value is just a magic cookie, in case any code wants
 	## to check that this is the correct location (with high probability).
 statics_start_marker:	0xdeadcafe
+
+        # scheduling quanta (length of alarm)
+alarm_quanta:           1000               #arbitrary val rn
 
 	## The trap table.  An array of 13 function pointers, to be initialized at runtime.
 trap_table:             0
@@ -653,6 +712,7 @@ exit_msg:			"EXIT requested.\n"
 all_programs_run_msg:		"All programs have been run.\n"
 no_programs_msg:		"ERROR: No programs provided.\n"
 default_handler_msg:		"Default interrupt handler invoked.\n"
+alarm_handler_msg:		"Alarm interrupt handler invoked.\n"
 done_msg:			"done.\n"
 failed_msg:			"failed!\n"
 blank_line:			"                                                                                "

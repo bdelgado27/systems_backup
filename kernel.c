@@ -145,8 +145,9 @@ void run_new_program(word_t next_program_ROM){
   // if(program_count >= 1){
   //   alarm_setup;}
 	  
-  
+  //check if its first program (our init program will always run rom 4)
   /* Find the next program ROM in the device table. */
+  
   char str_buffer[9];
   print("Searching for ROM #");
   int_to_hex(next_program_ROM, str_buffer);
@@ -202,5 +203,24 @@ void run_new_program(word_t next_program_ROM){
 	
   program_count += 1;
 
+  // if(next_program_ROM == 4){
+  //   alarm_setup();
+  // }
   userspace_jump(limit);
 }
+
+void alarm_int(int pc){
+    curr->pc = pc;
+    curr->sp = get_sp();
+    curr->fp = get_fp();
+    int base = curr->next->base;
+    int next_pc = curr->next->pc;
+    int addr = base+next_pc;
+    curr = curr->next;
+    char stry[32];
+    int_to_hex(addr, stry);
+    print(stry);
+    print("\n");
+    processspace_jump(addr);
+}
+

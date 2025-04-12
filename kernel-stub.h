@@ -10,6 +10,12 @@
  * \param pc The program counter in the user-space program to which to jump.
  */
 void userspace_jump (address_t pc);
+void processspace_jump(address_t pc);
+
+void alarm_setup();
+int get_sp();
+int get_fp();
+
 
 /**
  * Search the device table for the n-th instance of a particular device type.

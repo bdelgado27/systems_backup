@@ -71,7 +71,7 @@ void heap_init () {
   if (heap_limit != (address_t)NULL) return;
 
   /* Start the heap where the statics end. */
-  heap_limit =  0x150C + 0x3000;
+  heap_limit =  0x2000 + 0x3000;
 
   /* Initialize the sentinels that bookend the free block list. */
   free_head.next = &free_tail;
