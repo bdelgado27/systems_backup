@@ -29,4 +29,39 @@
       head = link->next;			\
   }
 
+  #define CIRCULAR_INSERT(head, tail, link)         \
+  do {                                                      \
+    if ((head) == NULL) {                                   \
+      (link)->next = (link);                                \
+      (link)->prev = (link);                                \
+      (head) = (tail) = (link);                             \
+    } else {                                                \
+      (link)->next = (head);                                \
+      (link)->prev = (tail);                                \
+      (tail)->next = (link);                                \
+      (head)->prev = (link);                                \
+      (head) = (link);                                      \
+    }                                                       \
+  } while (0)
+
+  #define CIRCULAR_REMOVE(head, tail, node)                           \
+  do {                                                     \
+    if ((node) == (head) && (node) == (tail)) {             \
+      (head) = (tail) = NULL;                               \
+    } else if ((node) == (head)) {                          \
+      (head) = (node)->next;                                \
+      (head)->prev = (tail);                                \
+      (tail)->next = (head);                                \
+    } else if ((node) == (tail)) {                          \
+      (tail) = (node)->prev;                                \
+      (tail)->next = (head);                                \
+      (head)->prev = (tail);                                \
+    } else {                                               \
+      (node)->prev->next = (node)->next;                    \
+      (node)->next->prev = (node)->prev;                    \
+    }                                                      \
+    free(node);                                            \
+  } while (0)
+
+
 #endif /* _LINKED_LIST_H */

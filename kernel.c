@@ -69,6 +69,9 @@ void run_programs () {
   
 } /* run_programs () */
 /* =============================================================================================================================== */
+
+
+// RAM Blocks linked list nodes 
 typedef struct int_link {
   struct int_link* next;
   struct int_link* prev;
@@ -76,6 +79,24 @@ typedef struct int_link {
 } int_link;
 int_link* tail = NULL;
 int_link* head = NULL;
+
+
+// Process info circular linked list nodes
+typedef struct process_link {
+  struct process_link* next;
+  struct process_link* prev;
+  int base;
+  int limit;
+  int pc;
+  int sp;
+  int fp;
+} process_link;
+process_link* process_head = NULL;
+process_link* process_tail = NULL;
+process_link* curr = NULL;
+int program_count = 0;
+
+
 
 void divide_ram(){
   int ram_size = 1024 * 128;
@@ -158,23 +179,28 @@ void run_new_program(word_t next_program_ROM){
   DMA_portal_ptr->length = dt_ROM_ptr->limit - dt_ROM_ptr->base; // Trigger
 
   /* Jump to the copied code at the kernel limit / program base. */
-  // process_link* block = malloc(sizeof(*block));
-  // block->base = dt_ROM_ptr->base;
-  // block->limit = limit;
-  // block->fp = limit;
-  // block->sp = limit;
-  // block->pc = 0;
+
+
+  process_link* block = allocate(sizeof(process_link));
+  block->base = limit;
+  block->limit = limit + dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  block->fp = limit + dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  block->sp = limit + dt_ROM_ptr->limit - dt_ROM_ptr->base;
+  block->pc = 0;
+
+  CIRCULAR_INSERT(process_head, process_tail, block);
   // if(process_head == NULL){
   //   process_head = block;
   //   process_tail = block;
   // }
   // else{
-  //   INSERT(process_head, block);
-  //   process_tail->prev = block;
-  //   head->prev = process_tail;
+  //   CIRCULAR_INSERT(process_tail, block);
+  //   process_head->prev = block;
+  //   process_tail->prev = process_head;
   // }
-  // curr = block;
+  curr = block;
 	
-  //program_count += 1;
+  program_count += 1;
+
   userspace_jump(limit);
 }
