@@ -67,7 +67,37 @@ void run_programs () {
   
 } /* run_programs () */
 /* =============================================================================================================================== */
+// typedef struct int_link {
+//   struct int_link* next;
+//   struct int_link* prev;
+//   int              addr;
+// } int_link;
+// int_link* head = NULL;
+// void divide_ram(){
 
+//   int ram_size = 1024 * 128;
+//   int block_size = 32 * 1024;
+//   int num_blocks = ram_size/block_size;
+  
+//   for(int i = 1; i<num_blocks; i++){
+//     int_link* block = malloc(sizeof(int_link));
+//     if (block == NULL) {
+//       return;
+//     }
+//     block->addr = (i)*block_size;
+//     INSERT(head, block);
+//   }
+// int x = 0;
+// if(head != NULL){
+//  x = head->addr;
+// }
+
+//  // char strx[4];
+//  // int_to_hex(x, strx);
+//  // print(strx);
+
+//   return;
+// }
 void run_new_program(word_t next_program_ROM){
 
   // if(program_count <1){

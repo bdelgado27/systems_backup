@@ -386,14 +386,16 @@ handle_print:
 	call print
 
 	# increment epc and return to program  
-	csrr t0, epc
-	
-	lw t1, kernel_limit
-	add t0, t0, t1
-	
-	addi t0, t0, 1
-	csrw epc, t0
-	eret
+#	csrr t0, epc
+#	
+#	lw t1, kernel_limit
+#	add t0, t0, t1
+#	
+#	addi t0, t0, 1
+#	csrw epc, t0
+#	eret
+	add a0, zero, zero
+	call handle_exit
 
 handle_exit:
 	# debug message
@@ -548,6 +550,8 @@ main_with_console:
 	call		init_trap_table
 	la		a0,		done_msg					# arg[0] = done_msg
 	call		print
+
+	call heap_init
 
 	## Call run_programs() to invoke each program ROM in turn.
 	call		run_programs
