@@ -111,40 +111,25 @@ void divide_ram(){
     block->addr = i*block_size;
     if(i == 2){
       head = block;
-      // char strh[32];
-      // int_to_hex(head->addr, strh);
-      // print(strh);
-      // print("\n");
+
     }
-    //  char strx[32];
-    //  int_to_hex(block->addr, strx);
-    //  print(strx);
-    //  print("\n");
+
 
     INSERT(tail, block);
   }
-//   int y = head->addr;
-//    int x = head->prev->addr;
 
-//  char strx[32];
-//  int_to_hex(x, strx);
-//  print(strx);
-
-//  print("\n");
-
-//  char stry[32];
-//  int_to_hex(y, stry);
-//  print(stry);
-//  print("\n");
   return;
 }
 void run_new_program(word_t next_program_ROM){
+
+  //unusable currently but meant to check if there is one program or not in order to turn the alarm off 
 
   // if(program_count <1){
   //  alarm_off();}
   // if(program_count >= 1){
   //   alarm_setup;}
 	  
+
   //check if its first program (our init program will always run rom 4)
   /* Find the next program ROM in the device table. */
   
@@ -190,15 +175,6 @@ void run_new_program(word_t next_program_ROM){
   block->pc = 0;
 
   CIRCULAR_INSERT(process_head, process_tail, block);
-  // if(process_head == NULL){
-  //   process_head = block;
-  //   process_tail = block;
-  // }
-  // else{
-  //   CIRCULAR_INSERT(process_tail, block);
-  //   process_head->prev = block;
-  //   process_tail->prev = process_head;
-  // }
   curr = block;
 	
   program_count += 1;
@@ -222,5 +198,35 @@ void alarm_int(int pc){
     print(stry);
     print("\n");
     processspace_jump(addr);
+}
+
+void exit_process(){
+  //if last process then return and end
+  if(process_head->prev == process_head){
+    return;
+  }
+
+  //else readd newly avail address to list 
+  int curr_addr = curr->base;
+  int_link* block = allocate(sizeof(int_link));
+  if (block == NULL) {
+    return;
+  }
+  block->addr = curr_addr;
+  INSERT(tail, block);
+
+  //and remove node from process circle
+  REMOVE(curr->next, curr);
+ 
+  
+
+  int next_base = curr->next->base;
+  int next_pc = curr->next->pc;
+  int next_addr = next_base+next_pc;
+  process_link* temp = curr; 
+  curr = curr->next;
+  deallocate(temp);
+  program_count -= 1;
+  userspace_jump(next_addr);
 }
 
